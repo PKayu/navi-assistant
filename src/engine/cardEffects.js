@@ -14,8 +14,17 @@ export function transformDice(diceValues, activeCard) {
       return diceValues.map((v) => (v === 1 ? 6 : v));
     case "mirrorImage": {
       const max = Math.max(...diceValues);
-      return diceValues.map(() => max);
+      // Pick 2 random indices that don't already hold the max value
+      const candidates = diceValues
+        .map((v, i) => ({ v, i }))
+        .filter(({ v }) => v !== max)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 2)
+        .map(({ i }) => i);
+      return diceValues.map((v, i) => (candidates.includes(i) ? max : v));
     }
+    case "cursedSixes":
+      return diceValues.map((v) => (v === 6 ? 1 : v));
     default:
       return diceValues;
   }
@@ -27,11 +36,11 @@ export function applyCardToState(state, card) {
     case "extraRoll":
       updates.maxRolls = 4;
       break;
+    case "rewind":
+      updates.maxRolls = 1;
+      break;
     case "doubleDown":
       updates.doubleThisTurn = true;
-      break;
-    case "freeHold":
-      updates.freeHoldActive = true;
       break;
     case "fumble":
       updates.noHoldAllowed = true;
