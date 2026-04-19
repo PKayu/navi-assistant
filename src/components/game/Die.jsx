@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PIP_LAYOUTS = {
   1: [[1, 1]],
@@ -10,17 +10,29 @@ const PIP_LAYOUTS = {
 };
 
 export default function Die({ die, isLocked, isRolling, onToggle, disabled }) {
-  const [animating, setAnimating] = useState(false);
+  const [cycleValue, setCycleValue] = useState(null);
+  const intervalRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
     if (isRolling && !die.held && !isLocked) {
-      setAnimating(true);
-      const t = setTimeout(() => setAnimating(false), 350);
-      return () => clearTimeout(t);
+      setCycleValue(Math.ceil(Math.random() * 6));
+      intervalRef.current = setInterval(() => {
+        setCycleValue(Math.ceil(Math.random() * 6));
+      }, 60);
+      timeoutRef.current = setTimeout(() => {
+        clearInterval(intervalRef.current);
+        setCycleValue(null);
+      }, 420);
     }
-  }, [isRolling, die.held, isLocked]);
+    return () => {
+      clearInterval(intervalRef.current);
+      clearTimeout(timeoutRef.current);
+    };
+  }, [isRolling]);
 
-  const pips = die.value ? PIP_LAYOUTS[die.value] : [];
+  const displayValue = cycleValue ?? die.value;
+  const pips = displayValue ? PIP_LAYOUTS[displayValue] : [];
 
   let borderClass = "border-slate-600";
   if (isLocked) borderClass = "border-red-500 border-2";
@@ -30,15 +42,17 @@ export default function Die({ die, isLocked, isRolling, onToggle, disabled }) {
   if (isLocked) bgClass = "bg-red-950/50";
   else if (die.held) bgClass = "bg-yellow-950/30";
 
+  const isAnimating = isRolling && !die.held && !isLocked;
+
   return (
     <button
       onClick={() => !disabled && !isLocked && onToggle(die.id)}
       disabled={disabled || isLocked}
-      aria-label={`Die showing ${die.value ?? "not rolled"}${die.held ? ", held" : ""}${isLocked ? ", locked" : ""}`}
+      aria-label={`Die showing ${displayValue ?? "not rolled"}${die.held ? ", held" : ""}${isLocked ? ", locked" : ""}`}
       className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl ${bgClass} border ${borderClass}
-        flex-shrink-0 transition-all duration-150
+        flex-shrink-0 transition-colors duration-150
         ${!disabled && !isLocked ? "hover:border-indigo-400 cursor-pointer active:scale-95" : "cursor-default"}
-        ${animating ? "dice-rolling" : ""}
+        ${isAnimating ? "dice-rolling" : ""}
       `}
     >
       {isLocked && (
@@ -53,7 +67,7 @@ export default function Die({ die, isLocked, isRolling, onToggle, disabled }) {
       )}
 
       <div className="w-full h-full grid grid-cols-3 grid-rows-3 p-1.5 gap-0.5">
-        {die.value ? (
+        {displayValue ? (
           Array.from({ length: 9 }, (_, idx) => {
             const row = Math.floor(idx / 3);
             const col = idx % 3;
@@ -61,7 +75,7 @@ export default function Die({ die, isLocked, isRolling, onToggle, disabled }) {
             return (
               <div
                 key={idx}
-                className={`rounded-full ${hasPip ? "bg-white" : "bg-transparent"}`}
+                className={`rounded-full transition-opacity duration-75 ${hasPip ? "bg-white" : "bg-transparent"}`}
               />
             );
           })

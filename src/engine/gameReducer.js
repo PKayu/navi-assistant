@@ -74,7 +74,11 @@ export function gameReducer(state, action) {
 
     case "DRAW_CARD": {
       if (state.cardDrawn || state.turnPhase !== "draw") return state;
-      const card = CARDS[Math.floor(Math.random() * CARDS.length)];
+      const isSinglePlayer = state.players.length === 1;
+      const pool = isSinglePlayer
+        ? CARDS.filter((c) => !["steal", "swapDice"].includes(c.effectKey))
+        : CARDS;
+      const card = pool[Math.floor(Math.random() * pool.length)];
       const cardUpdates = applyCardToState(state, card);
       return {
         ...state,
@@ -89,7 +93,11 @@ export function gameReducer(state, action) {
       if (state.turnPhase !== "rolling" || state.rollCount >= state.maxRolls) return state;
 
       const newDice = state.dice.map((die, i) => {
-        if (i === state.lockedDieIndex) return { ...die, value: 1, held: false };
+        if (i === state.lockedDieIndex) {
+          // Lock to first rolled value; keep it on subsequent rolls
+          if (die.value !== null) return { ...die, held: false };
+          return { ...die, value: Math.ceil(Math.random() * 6), held: false };
+        }
         if (die.held) return die;
         return { ...die, value: Math.ceil(Math.random() * 6) };
       });
