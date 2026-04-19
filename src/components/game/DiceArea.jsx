@@ -11,7 +11,7 @@ export default function DiceArea({ state, onRoll, onToggleHold }) {
     if (!canRoll) return;
     setRolling(true);
     onRoll();
-    setTimeout(() => setRolling(false), 400);
+    setTimeout(() => setRolling(false), 450);
   }
 
   const rollsLeft = maxRolls - rollCount;
