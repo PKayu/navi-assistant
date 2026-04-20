@@ -20,7 +20,6 @@ const TURN_DEFAULTS = {
   halfScoreThisTurn: false,
   lockedDieIndex: null,
   forcedCategory: null,
-  freeHoldActive: false,
   pendingSteal: false,
   pendingSwap: false,
 };
@@ -103,16 +102,8 @@ export function gameReducer(state, action) {
       });
 
       const newRollCount = state.rollCount + 1;
-
-      let updatedDice = newDice;
-      if (state.freeHoldActive && newRollCount === 1) {
-        updatedDice = newDice.map((d, i) =>
-          i === state.lockedDieIndex ? d : { ...d, held: true }
-        );
-      }
-
       const nextPhase = newRollCount >= state.maxRolls ? "scoring" : "rolling";
-      return { ...state, dice: updatedDice, rollCount: newRollCount, turnPhase: nextPhase };
+      return { ...state, dice: newDice, rollCount: newRollCount, turnPhase: nextPhase };
     }
 
     case "TOGGLE_HOLD": {

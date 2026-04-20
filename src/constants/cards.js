@@ -9,7 +9,7 @@ export const CARDS = [
     color: "emerald",
   },
   {
-    id: "luckysSevens",
+    id: "luckySevens",
     name: "Lucky 7s",
     description: "All your 1s become 6s this turn.",
     type: "positive",
@@ -19,7 +19,7 @@ export const CARDS = [
   {
     id: "mirrorImage",
     name: "Mirror Image",
-    description: "All your dice take the value of your highest die.",
+    description: "2 random dice copy the value of your highest die.",
     type: "positive",
     effectKey: "mirrorImage",
     color: "blue",
@@ -39,14 +39,6 @@ export const CARDS = [
     type: "positive",
     effectKey: "doubleDown",
     color: "yellow",
-  },
-  {
-    id: "freeHold",
-    name: "Free Hold",
-    description: "All dice are automatically held after your first roll.",
-    type: "positive",
-    effectKey: "freeHold",
-    color: "emerald",
   },
   {
     id: "steal",
@@ -84,7 +76,7 @@ export const CARDS = [
   {
     id: "brokenDie",
     name: "Broken Die",
-    description: "One random die is stuck at 1 all turn — it can't be held or rerolled.",
+    description: "One random die gets stuck on whatever it first rolls — it can't be held or rerolled.",
     type: "negative",
     effectKey: "brokenDie",
     color: "red",
@@ -96,5 +88,21 @@ export const CARDS = [
     type: "negative",
     effectKey: "forcedCategory",
     color: "orange",
+  },
+  {
+    id: "rewind",
+    name: "Rewind",
+    description: "You only get 1 roll this turn — no rerolls.",
+    type: "negative",
+    effectKey: "rewind",
+    color: "red",
+  },
+  {
+    id: "cursedSixes",
+    name: "Cursed Sixes",
+    description: "All your 6s count as 1s for scoring this turn.",
+    type: "negative",
+    effectKey: "cursedSixes",
+    color: "red",
   },
 ];
